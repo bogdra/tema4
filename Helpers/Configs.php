@@ -2,21 +2,25 @@
 
 namespace Helpers;
 
-class Configs {
-	
-	public static function autoload() {
+class Configs
+{
 
-		spl_autoload_register(function($class_name) {
-			
-			$class_name_arr = explode('\\', $class_name);
-			
-			$folder = $class_name_arr[0];
-			$file = $class_name_arr[1].'.php';
-			
-			require_once($folder.'/'.$file);
-			
-		});
+    public static function autoload()
+    {
 
-	}
-	
+        spl_autoload_register(function ($class_name) {
+
+            $class_name_arr = explode('\\', $class_name);
+
+            $file = end($class_name_arr) . '.php';
+            array_pop($class_name_arr);
+            $path = (count($class_name_arr) > 1)
+                ? implode(DIRECTORY_SEPARATOR, $class_name_arr) . DIRECTORY_SEPARATOR . $file
+                : $class_name_arr[0] . DIRECTORY_SEPARATOR . $file;
+            require_once($path);
+
+        });
+
+    }
+
 }
