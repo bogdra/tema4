@@ -6,34 +6,33 @@ class Products
 {
 
     private $filtered_input;
-    private $results = array();
-    private $parsed_csv_arr;
+    private $csv_array;
+
 
     public function __construct($filtered_input)
     {
-
         $this->filtered_input = $filtered_input;
-        $this->parsed_csv_arr = $this->construct_csv_array();
+        $this->csv_array = $this->construct_csv_array();
 
     }
 
     public function get_results()
     {
-
         if (!$this->filtered_input) {
 
-           return $this->parsed_csv_arr;
+            return $this->csv_array;
 
         } else {
 
-          return  $this->get_filtered_results();
+            return $this->get_filtered_results();
 
         }
 
     }
 
-    private function construct_csv_array():array
+    private function construct_csv_array(): array
     {
+        $final_arr = array();
 
         $csv_string = file_get_contents('data.csv');
 
@@ -79,7 +78,7 @@ class Products
 
         $filter_price = ($this->filtered_input['price'] > 0) ? $this->filtered_input['price'] : false;
 
-        foreach ($this->parsed_csv_arr as $k => $result) {
+        foreach ($this->csv_array as $k => $result) {
 
             $condition =
                 ($filter_model !== false && $filter_model != $result['model'])
@@ -89,15 +88,31 @@ class Products
 
             if (!$condition) {
 
-                $final_result[] = $this->parsed_csv_arr;
+                $final_result[] = $result;
 
             }
 
         }
+
         return $final_result;
 
     }
 
+
+    public function get_unique_characteristics_values()
+    {
+        $keys_array = [];
+        foreach ($this->csv_array as $element) {
+            foreach ($element as $key => $value) {
+                $keys_array[$key][] = $value;
+            }
+        }
+        array_pop($keys_array);
+        foreach ($keys_array as $key => $value) {
+            $keys_array[$key] = array_unique($value);
+        }
+        return $keys_array;
+    }
 }
 
 

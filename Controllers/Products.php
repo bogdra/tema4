@@ -24,21 +24,22 @@ class Products {
 	}
 	
 	public function display() {
-		
+
 		//var_dump($this->input);
 		//var_dump($this->filtered_input);
-		
+
 		$products_model = new \Models\Products($this->filtered_input);
 		$results = $products_model->get_results();
-		
-		$filter_view = new \Views\Filter;
+		$unique_char_values = $products_model->get_unique_characteristics_values();
+
+		$filter_view = new \Views\Filter($unique_char_values);
 		$filter_view->output();
 		
 		$results_view = new \Views\Results($results);
 		$results_view->output();
 
 	}
-	
+
 	private function sanitize_input() {
 	
 		$string_fields = array(
