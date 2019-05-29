@@ -13,7 +13,7 @@ class Products {
 		
 		if (!$this->input) {
 			
-			$this->filtered_input = false;
+			$this->filtered_input = ["model" => 'all', "color" => 'all', "year" => 'all', "price" => ''];
 			
 		} else {
 			
@@ -30,9 +30,9 @@ class Products {
 
 		$products_model = new \Models\Products($this->filtered_input);
 		$results = $products_model->get_results();
-		$unique_char_values = $products_model->get_unique_characteristics_values();
+		$unique_char_values = $products_model->insert_selected_into_unique_array();
 
-		$filter_view = new \Views\Filter($unique_char_values);
+		$filter_view = new \Views\Filter($unique_char_values, $this->filtered_input);
 		$filter_view->output();
 		
 		$results_view = new \Views\Results($results);
@@ -65,6 +65,7 @@ class Products {
 			}
 			
 		}
+		if ($this->filtered_input == 0) { $this->filtered_input = '';}
 		
 	}
 	

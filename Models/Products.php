@@ -12,9 +12,13 @@ class Products
     public function __construct($filtered_input)
     {
         $this->filtered_input = $filtered_input;
+        if ($this->filtered_input['year'] == 0) {
+            $this->filtered_input['year'] = 'all';
+        }
         $this->csv_array = $this->construct_csv_array();
 
     }
+
 
     public function get_results()
     {
@@ -30,13 +34,14 @@ class Products
 
     }
 
+
     private function construct_csv_array(): array
     {
-        $final_arr = array();
+        $this->results = array();
 
         $csv_string = file_get_contents('data.csv');
 
-        $csv_arr = explode(PHP_EOL, $csv_string);
+        $csv_arr = explode("\r\n", $csv_string);
 
         $csv_arr = array_diff($csv_arr, array(''));
 
@@ -61,11 +66,12 @@ class Products
 
             }
 
-            $final_arr[] = $row_new;
+            $this->results[] = $row_new;
 
         }
-        return $final_arr;
+        return $this->results;
     }
+
 
     private function get_filtered_results()
     {
@@ -109,9 +115,25 @@ class Products
         }
         array_pop($keys_array);
         foreach ($keys_array as $key => $value) {
-            $keys_array[$key] = array_unique($value);
+            $keys_array[$key] = array_values(array_unique($value));
+            array_unshift($keys_array[$key], 'all');
+            $keys_array[$key] = array_flip($keys_array[$key]);
+            $keys_array[$key] = array_map(function () {
+                return '';
+            }, $keys_array[$key]);
         }
         return $keys_array;
+    }
+
+
+    public function insert_selected_into_unique_array()
+    {
+        $array = $this->get_unique_characteristics_values();
+        foreach ($this->filtered_input as $key => $value) {
+            $array[$key][$value] = ' selected';
+        }
+        array_pop($array);
+        return $array;
     }
 }
 
