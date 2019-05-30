@@ -1,5 +1,7 @@
 <?php
 
+define("SECURE", true);
+
 require_once('Helpers/Configs.php');
 
 \Helpers\Configs::autoload();

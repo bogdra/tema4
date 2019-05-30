@@ -2,6 +2,8 @@
 
 namespace Models;
 
+defined("SECURE") or exit('You do not have permissions to access the page.');
+
 class Products
 {
 
