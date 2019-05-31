@@ -4,7 +4,7 @@ namespace Helpers;
 
 class Configs
 {
-
+    const DATA_FILE = 'data.csv';
     public static function autoload()
     {
 

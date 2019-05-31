@@ -2,6 +2,8 @@
 
 namespace Models;
 
+use mysql_xdevapi\Exception;
+
 defined("SECURE") or exit('You do not have permissions to access the page.');
 
 class Products
@@ -14,11 +16,7 @@ class Products
     public function __construct($filtered_input)
     {
         $this->filtered_input = $filtered_input;
-        if ($this->filtered_input['year'] == 0) {
-            $this->filtered_input['year'] = 'all';
-        }
         $this->csv_array = $this->construct_csv_array();
-
     }
 
 
@@ -39,39 +37,26 @@ class Products
 
     private function construct_csv_array(): array
     {
-        $this->results = array();
+        $results = array();
 
-        $csv_string = file_get_contents('data.csv');
-
-        $csv_arr = explode("\r\n", $csv_string);
-
-        $csv_arr = array_diff($csv_arr, array(''));
-
-        $csv_arr = array_values($csv_arr);
-
-        $header_arr = explode(',', $csv_arr[0]);
-
-        unset($csv_arr[0]);
-
-        foreach ($csv_arr as $row) {
-
-            $row_arr = explode(',', $row);
-
-            $row_new = array();
-
-            foreach ($row_arr as $k => $v) {
-
-                $k_new = trim($header_arr[$k]);
-                $v_new = trim($v);
-
-                $row_new[$k_new] = $v_new;
-
-            }
-
-            $this->results[] = $row_new;
-
+        if (($csv_handler = fopen(\Helpers\Configs::DATA_FILE, "r")) == false) {
+            throw new Exception('The source file can\'t be open');
         }
-        return $this->results;
+        $keys = array();
+        while (($data = fgetcsv($csv_handler, 300, ",")) !== false) {
+            if ($data[0] == null) {
+                continue;
+            }
+            $data = array_map(function ($item) {
+                return trim($item);
+            }, $data);
+            if (empty($keys)) {
+                $keys = $data;
+            } else {
+                $results[] = array_combine($keys, $data);
+            }
+        }
+        return $results;
     }
 
 
